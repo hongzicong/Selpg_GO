@@ -1,13 +1,12 @@
 package main
 
 import (
-	"flag"
 	"fmt"
 	"io"
 	"os"
 	"os/exec"
 
-	flag "github.com/spf13/pflag"
+	flag "pflag"
 )
 
 const INBUFSIZE = 16 * 1024
@@ -34,9 +33,10 @@ type sp_args struct {
 func main() {
 	progname = os.Args[0]
 
-	sa := sp_args{-1, -1, "", 72, 'l', ""}
+	sa := sp_args{-1, -1, "", 72, false, ""}
 
 	sa.process_args()
+
 	sa.process_input()
 }
 
@@ -62,7 +62,7 @@ func (sa *sp_args) process_args() {
 	sa.page_type = *pagetype
 	sa.print_dest = *printdest
 
-	if flag.NArg > 1 {
+	if flag.NArg() > 1 {
 		fmt.Fprintf(os.Stderr, "%s: too much arguments\n", progname)
 		flag.Usage()
 		os.Exit(1)
@@ -94,19 +94,19 @@ func (sa *sp_args) process_args() {
 	}
 
 	if sa.page_len != 72 && sa.page_type {
-		l.Println("Line number and force paging should not be set at the same time!")
+		fmt.Fprintf(os.Stderr, "%s: Line number and force paging should not be set at the same time!", progname)
 		flag.Usage()
 		os.Exit(6)
 	}
 
 	if sa.page_len < 1 || sa.page_len > INT_MAX-1 {
 		fmt.Fprintf(os.Stderr, "%s: invalid page length %s\n", progname, sa.page_len)
-		usage()
+		flag.Usage()
 		os.Exit(7)
 	}
 
 	if flag.NArg() != 0 {
-		sa.in_filename = flag.Args[0]
+		sa.in_filename = flag.Args()[0]
 		/* check if file exists */
 		_, err := os.Stat(sa.in_filename)
 		if err != nil {
@@ -148,9 +148,8 @@ func (sa sp_args) process_input() {
 			os.Exit(13)
 		}
 	}
-
 	/* begin one of two main loops based on page type */
-	if sa.page_type == 'l' {
+	if sa.page_type {
 		line_ctr = 0
 		page_ctr = 1
 		line := make([]byte, BUFSIZ)
@@ -172,6 +171,8 @@ func (sa sp_args) process_input() {
 	} else {
 		page_ctr = 1
 		c := make([]byte, 1)
+
+		fmt.Fprintf(os.Stderr, "s\n")
 		for true {
 			_, err := fin.Read(c)
 			if err == io.EOF {
