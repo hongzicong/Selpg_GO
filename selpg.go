@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bufio"
 	"fmt"
 	"io"
 	"os"
@@ -125,12 +126,16 @@ func (sa sp_args) process_input() {
 	var line_ctr int  /* line counter */
 	var page_ctr int  /* page counter */
 	var cmd *exec.Cmd
+	var err error
+
+	defer fin.Close()
+	defer fout.Close()
 
 	/* set the input source */
 	if len(sa.in_filename) == 0 {
 		fin = os.Stdin
 	} else {
-		_, err := os.Open(sa.in_filename)
+		fin, err = os.Open(sa.in_filename)
 		if err != nil {
 			fmt.Fprintf(os.Stderr, "%s: could not open input file \"%s\"\n", progname, sa.in_filename)
 			os.Exit(12)
@@ -149,15 +154,16 @@ func (sa sp_args) process_input() {
 		}
 	}
 
+	r := bufio.NewReader(fin)
+	w := bufio.NewWriter(fout)
+
 	/* begin one of two main loops based on page type */
 	if !sa.page_type {
 		line_ctr = 0
 		page_ctr = 1
-		line := make([]byte, BUFSIZ)
 		for true {
-			_, err := fin.Read(line)
-			//fmt.Fprint(os.Stderr, line)
-			if err == io.EOF {
+			line, err := r.ReadString('\n')
+			if err != nil || err == io.EOF {
 				break
 			}
 			line_ctr++
@@ -166,23 +172,21 @@ func (sa sp_args) process_input() {
 				line_ctr = 1
 			}
 			if page_ctr >= sa.start_page && page_ctr <= sa.end_page {
-				fout.Write(line)
+				w.WriteString(line)
 			}
 		}
 	} else {
 		page_ctr = 1
-		c := make([]byte, 1)
-
 		for true {
-			_, err := fin.Read(c)
-			if err == io.EOF {
+			c, err := r.ReadByte()
+			if err != nil || err == io.EOF {
 				break
 			}
-			if c[0] == '\f' {
+			if c == '\f' {
 				page_ctr++
 			}
 			if page_ctr >= sa.start_page && page_ctr <= sa.end_page {
-				fout.Write(c)
+				w.WriteByte(c)
 			}
 		}
 	}
@@ -195,10 +199,10 @@ func (sa sp_args) process_input() {
 		fmt.Fprintf(os.Stderr, "%s: end_page (%d) greater than total pages (%d), less output than expected\n", progname, sa.end_page, page_ctr)
 	}
 
-	fin.Close()
 	if len(sa.print_dest) != 0 {
 		cmd.CombinedOutput()
 	}
+	w.Flush()
 	fmt.Fprintf(os.Stderr, "%s: done\n", progname)
 
 }
