@@ -148,15 +148,16 @@ func (sa sp_args) process_input() {
 			os.Exit(13)
 		}
 	}
+
 	/* begin one of two main loops based on page type */
-	if sa.page_type {
+	if !sa.page_type {
 		line_ctr = 0
 		page_ctr = 1
 		line := make([]byte, BUFSIZ)
 		for true {
 			_, err := fin.Read(line)
-			/* error or EOF */
-			if err != nil || err == io.EOF {
+			//fmt.Fprint(os.Stderr, line)
+			if err == io.EOF {
 				break
 			}
 			line_ctr++
@@ -172,7 +173,6 @@ func (sa sp_args) process_input() {
 		page_ctr = 1
 		c := make([]byte, 1)
 
-		fmt.Fprintf(os.Stderr, "s\n")
 		for true {
 			_, err := fin.Read(c)
 			if err == io.EOF {
