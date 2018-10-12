@@ -6,9 +6,21 @@
 
 `Selgo_GO` can be used to extract only a specified range of pages from an input text file and then print the output file in the command line, a file or anywhere you like.
 
-## Code
+## File Structure
 
-### 
+- selpg.go: the Go version of selpg 
+
+- input_file: the file used to input
+
+- output_file: the file used to output result
+
+- error_file: the file used to output error record
+
+
+
+## Code Analysis
+
+1. Import required packages in the project.
 
 ```go
 import (
@@ -22,6 +34,8 @@ import (
 )
 ```
 
+2. A struct which is the core of selpg.
+
 ```go
 type sp_args struct {
 	start_page  int
@@ -33,17 +47,21 @@ type sp_args struct {
 }
 ```
 
+3. Input the arguments of command line, check them for validity and then construct a `sp_args` struct based on the user's input arguments.
+
 ```go
 func (sa *sp_args) process_args()
 ```
+
+4. Process the input and output the result and error record into the specified locations accroding to the `sp_args`.
 
 ```go
 func (sa sp_args) process_input()
 ```
 
-## Test
+## Test Case
 
-0. Using `$ sh ./test.sh` in command line. 
+Typng an instruction `$ sh ./test.sh` in command line. 
 
 ```bash
 // test.sh
@@ -55,7 +73,9 @@ done
 
 Then we can get a text file consisting of 7200 numbers from 1 to 7200 and each number occupies one line.
 
-1. `$ selpg -s1 -e1 input_file`
+### Case 1
+
+input: `$ selpg -s1 -e1 input_file`
 
 output:
 ```
@@ -67,7 +87,9 @@ output:
 E:\大三上各科\服务计算\selpg.exe: done
 ```
 
-2. `$ selpg -s1 -e1 < input_file`
+### Case 2
+
+input: `$ selpg -s1 -e1 < input_file`
 
 output:
 ```
@@ -79,7 +101,9 @@ output:
 E:\大三上各科\服务计算\selpg.exe: done
 ```
 
-3. `$ selpg -s1 -e1 input_file >output_file`
+### Case 3
+
+input:  `$ selpg -s1 -e1 input_file >output_file`
 
 output:
 ```
@@ -93,7 +117,9 @@ output:
 E:\大三上各科\服务计算\selpg.exe: done
 ```
 
-4. `$ selpg -s1 -e1 input_file 2>error_file`
+### Case 4
+
+input: `$ selpg -s1 -e1 input_file 2>error_file`
 
 output:
 ```
@@ -107,7 +133,9 @@ output:
 E:\大三上各科\服务计算\selpg.exe: done
 ```
 
-5. `$ selpg -s1 -e10 -l1 input_file 2>error_file`
+### Case 5
+
+input: `$ selpg -s1 -e10 -l1 input_file 2>error_file`
 
 output:
 ```
