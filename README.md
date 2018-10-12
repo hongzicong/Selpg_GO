@@ -10,7 +10,7 @@
 
 ### 
 
-```
+```go
 import (
 	"bufio"
 	"fmt"
@@ -22,17 +22,104 @@ import (
 )
 ```
 
+```go
+type sp_args struct {
+	start_page  int
+	end_page    int
+	in_filename string
+	page_len    int
+	page_type   bool
+	print_dest  string
+}
+```
+
+```go
+func (sa *sp_args) process_args()
+```
+
+```go
+func (sa sp_args) process_input()
+```
+
 ## Test
+
+0. Using `$ sh ./test.sh` in command line. 
+
+```bash
+// test.sh
+for i in {1..7200}
+do
+  echo $i >> input_file
+done
+```
+
+Then we can get a text file consisting of 7200 numbers from 1 to 7200 and each number occupies one line.
 
 1. `$ selpg -s1 -e1 input_file`
 
+output:
+```
+// location: command line
+1
+2
+...
+72
+E:\大三上各科\服务计算\selpg.exe: done
+```
+
 2. `$ selpg -s1 -e1 < input_file`
+
+output:
+```
+// location: command line
+1
+2
+...
+72
+E:\大三上各科\服务计算\selpg.exe: done
+```
 
 3. `$ selpg -s1 -e1 input_file >output_file`
 
+output:
+```
+// location: output_file
+1
+2
+...
+72
+
+// location: command line
+E:\大三上各科\服务计算\selpg.exe: done
+```
+
 4. `$ selpg -s1 -e1 input_file 2>error_file`
 
+output:
+```
+// location: command line
+1
+2
+...
+72
+
+// location: error_file
+E:\大三上各科\服务计算\selpg.exe: done
+```
+
 5. `$ selpg -s1 -e10 -l1 input_file 2>error_file`
+
+output:
+```
+// location: command line
+1
+2
+...
+10
+
+// location: error_file
+E:\大三上各科\服务计算\selpg.exe: done
+```
 
 ## Reference
 
